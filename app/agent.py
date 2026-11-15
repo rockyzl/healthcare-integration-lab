@@ -52,7 +52,7 @@ async def draft_reply(key, question):
     before, _ = db.get_patient(key)
 
     def read_sqlserver_record() -> dict:
-        """Read the fixed test patient's imported FHIR record and recorded EOB totals. No SQL or ID argument."""
+        """Read the fixed test patient's visit descriptions, reasons, insurance line items and EOB totals. No SQL or ID argument."""
         return db.evidence(key)
 
     def read_oracle_reconciliation() -> dict:
@@ -69,6 +69,9 @@ FHIR ExplanationOfBenefit data is not a current patient bill. Never calculate a 
 by subtracting payer payments from charges; missing deductible/coinsurance/other payments remain unknown.
 If eobs is empty, say no insurance-payment data is available for this test record.
 Quote only recorded USD amounts and prefix them with $. Do not add or invent amounts.
+Use the source-recorded service labels and visit reasons when answering questions about record contents.
+Do not infer a diagnosis or treatment beyond those labels. An item label is not proof a treatment occurred.
+If a line amount is missing, say it is not provided; never allocate a claim total across its lines.
 Oracle equality verifies copied content only; it does not validate insurance coverage or clinical facts.
 Never claim a message was sent, an account was changed, or a referral was made. You only prepare a draft.
 Use the exact two source_id values in evidence_ids. Keep the response under 110 words.

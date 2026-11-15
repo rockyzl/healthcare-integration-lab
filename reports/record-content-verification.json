@@ -1,0 +1,55 @@
+{
+  "verified_at_utc": "2026-11-15T03:26:45.863287+00:00",
+  "checks": {
+    "source_visit_types_visible": true,
+    "source_reason_and_code_visible": true,
+    "fixture_insurer_visible": true,
+    "five_original_service_lines_visible": true,
+    "missing_line_amounts_not_invented": true,
+    "download_matches_stored_resource": true,
+    "original_source_link_matches": true,
+    "stale_drafts_marked": true,
+    "desktop_and_mobile_no_overflow": true,
+    "english_ui": true,
+    "page_errors": []
+  },
+  "fixture_counts": {
+    "patients": 1,
+    "visits": 3,
+    "insurance": 3
+  },
+  "live_counts": {
+    "patients": 1,
+    "visits": 23,
+    "insurance": 0
+  },
+  "note": "Read-only record inspection and repeat imports; no review decisions modified.",
+  "model_verification": {
+    "case_id": "534cd4c9864a4897b39195d0da13ccff",
+    "model": "gemini-3.8-flash",
+    "checks": {
+      "both_tools_called": true,
+      "references_match": true,
+      "quoted_amounts_in_evidence": true,
+      "oracle_matches_sqlserver": true,
+      "human_review_required": true,
+      "snapshot_unchanged": true
+    },
+    "status": "awaiting_review",
+    "draft": {
+      "response": "This test record is from a pinned public Synthea fixture, not a live hospital feed.\n\nThe recorded insurance items contain the following service descriptions and SNOMED codes:\n- \"General examination of patient (procedure)\" (code 162673000)\n- \"Prediabetes\" (code 15777000)\n- \"Anemia (disorder)\" (code 271737000)\n- \"Encounter for problem\" (code 185347001)\n\nA separate charge for each line is not provided in the source record. Claim submitted totals are recorded ($129.16, $129.16, and $77.49), but claim totals cannot be allocated across lines. Oracle reconciliation verifies copied content consistency only, not coverage or clinical facts.",
+      "evidence_ids": [
+        "sqlserver-record:5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30",
+        "oracle-report:5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30"
+      ],
+      "missing_information": [
+        "separate line-item charges or line amounts"
+      ]
+    },
+    "source_line_items_seen": 5,
+    "tools_called": [
+      "read_sqlserver_record",
+      "read_oracle_reconciliation"
+    ]
+  }
+}

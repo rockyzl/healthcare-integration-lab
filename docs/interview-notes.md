@@ -14,7 +14,7 @@ To practice two requested database technologies and demonstrate a verifiable han
 
 ## What did you implement yourself?
 
-The source-specific patient mapping, reference checks, reduced record projection, parameterized database adapters, transactional reimports, cross-database payload verification, two agent tools, structured draft checks, local review state, and English UI. The input fixture comes from the open-source Synthea project and is attributed; the live endpoint is the public SMART test server.
+The source-specific patient mapping, reference checks, reduced record projection, parameterized database adapters, transactional reimports, cross-database payload verification, two agent tools, structured draft checks, local review state, and English UI. The UI exposes source visit descriptions and reasons, insurance service lines and codes, and downloadable retained JSON fields. The agent reads that same detailed content through its database tool. The input fixture comes from the open-source Synthea project and is attributed; the live endpoint is the public SMART test server.
 
 ## Where is the agent?
 
@@ -30,7 +30,7 @@ The import checks Encounter/EOB references against the selected test Patient. St
 
 ## What did you test?
 
-Fourteen automated checks, including real SQL Server and Oracle integration. I verified reimport idempotence, parameterized queries, altered-copy detection, reference and amount checks, and rejection of failed, stale, or already-reviewed drafts. Two live model runs and browser checks demonstrated that review decisions persist after a page reload.
+Sixteen automated checks, including real SQL Server and Oracle integration. I verified reimport idempotence, parameterized queries, altered-copy detection, reference and amount checks, and rejection of failed, stale, or already-reviewed drafts. Initial live model runs and browser checks demonstrated that review decisions persist after a page reload. A further model call verified access to source service descriptions and codes without inventing missing line charges; browser checks confirmed the detailed record display and that JSON downloads match stored fields.
 
 ## Does this demonstrate Epic, ServiceNow, UKG, or UiPath experience?
 

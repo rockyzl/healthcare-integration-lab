@@ -4,6 +4,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 }[char]));
 let selected = '';
 let currentPreview = null;
+let currentSnapshot = '';
 try { selected = localStorage.getItem('lab-selected-record') || ''; } catch {}
 
 function rememberSelection() {
@@ -49,26 +50,8 @@ function money(fact) {
   return esc(new Intl.NumberFormat('en-US', { style: 'currency', currency: fact.currency }).format(Number(fact.value)));
 }
 
-function visitTable(visits) {
-  return `<div class="table-scroll"><table class="records-table"><thead><tr><th>Visit date</th><th>End date</th><th>Status</th><th>Record ID</th></tr></thead><tbody>${visits.map(visit => `
-    <tr><td>${date(visit.period.start)}</td><td>${date(visit.period.end)}</td><td>${esc(visit.status || 'Not provided')}</td><td><code title="${esc(visit.id)}">${esc(visit.id.slice(0, 8))}…</code></td></tr>`).join('')}</tbody></table></div>`;
-}
-
 function renderPreview(preview) {
-  const visits = preview.visits;
-  const visitContent = visits.length ? visitTable(visits.slice(0, 5)) + (visits.length > 5 ?
-    `<details><summary>Show ${visits.length - 5} more visit records</summary>${visitTable(visits.slice(5))}</details>` : '') :
-    '<p class="empty-records">No visit records were returned for this test patient.</p>';
-  const insuranceContent = preview.insurance.length ? `<div class="insurance-list">${preview.insurance.map((record, index) => {
-    const submitted = record.financial_facts.find(f => f.kind === 'EOB total' && f.category === 'submitted');
-    const payment = record.financial_facts.find(f => f.kind === 'EOB payment');
-    return `<article class="insurance-record"><div class="case-top"><b>Insurance record ${index + 1}</b><span class="small">${date(record.period.start)}</span></div>
-      <dl><div><dt>Submitted amount</dt><dd>${money(submitted)}</dd></div><div><dt>Recorded payment</dt><dd>${money(payment)}</dd></div></dl>
-      <p class="small">Status: ${esc(record.status || 'Not provided')} · Outcome: ${esc(record.outcome || 'Not provided')}<br>Record ID: <code>${esc(record.id)}</code></p></article>`;
-  }).join('')}</div><p class="small">These are recorded insurance amounts, not a calculation of what the patient owes.</p>` :
-    '<div class="empty-records"><b>No insurance records returned</b><p>The import worked. This test patient has no insurance records in this snapshot, so there are no insurance amounts to display.</p><button class="secondary" id="load-example-from-results">Load the example with insurance amounts</button></div>';
-  $('#record-preview').innerHTML = `<div class="patient-record"><b>Test patient</b><span>Patient ID: <code>${esc(preview.patient_id)}</code></span><span class="small">Names and other personal details are not retained in this demo.</span></div>
-    <h3>Visit records</h3>${visitContent}<h3>Insurance records <span class="small">Explanation of Benefit · EOB</span></h3>${insuranceContent}`;
+  renderFullPreview(preview);
   const exampleButton = $('#load-example-from-results');
   if (exampleButton) exampleButton.onclick = () => importSource('fixture', exampleButton);
 }
@@ -94,6 +77,7 @@ async function showRecord() {
   if (key !== selected) return;
   const comparison = data.comparison, preview = data.preview;
   currentPreview = preview;
+  currentSnapshot = data.record.snapshot_hash;
   $('#import-summary').textContent = `${preview.source_label} · Last imported ${new Date(preview.imported_at).toLocaleString('en-US')}`;
   $('#record-counts').innerHTML = [['Test patient', preview.counts.patients], ['Visit records', preview.counts.visits], ['Insurance records', preview.counts.insurance]].map(([label, value]) => `<div class="metric">${label}<strong>${esc(value)}</strong></div>`).join('');
   renderPreview(preview);
@@ -106,7 +90,7 @@ async function showCases() {
   const key = selected;
   const { cases } = await api('/cases');
   if (key !== selected) return;
-  $('#cases').innerHTML = cases.filter(caseData => caseData.patient_key === key).map(c => `<article class="case"><div class="case-top"><span class="tag">${esc(c.status.replaceAll('_', ' '))}</span><span class="small">${esc(new Date(c.created_at).toLocaleString('en-US'))}</span></div><h3>${esc(c.question)}</h3><details><summary>Agent tools and evidence checks</summary><pre>${esc(JSON.stringify({ model: c.model, checks: c.checks, tools: c.trace }, null, 2))}</pre></details>${c.status === 'awaiting_review' ? `<label for="draft-${c.id}">Staff draft — review before approving</label><textarea id="draft-${c.id}" rows="5">${esc(c.draft.response)}</textarea><div class="case-actions"><button data-id="${c.id}" data-decision="approve" ${Object.values(c.checks).every(Boolean) ? '' : 'disabled'}>Approve reply</button><button class="reject" data-id="${c.id}" data-decision="reject">Reject draft</button></div>` : ''}<div class="${c.response ? 'reply' : 'pending'}"><b>Patient-view preview</b><br>${c.response ? esc(c.response) : c.status === 'rejected' ? 'No reply published. Staff needs to investigate further.' : 'No reply published. The draft is waiting for staff review.'}</div></article>`).join('');
+  $('#cases').innerHTML = cases.filter(caseData => caseData.patient_key === key).map(c => `<article class="case"><div class="case-top"><span class="tag">${esc(c.status.replaceAll('_', ' '))}</span><span class="small">${esc(new Date(c.created_at).toLocaleString('en-US'))}</span></div><h3>${esc(c.question)}</h3>${c.snapshot_hash !== currentSnapshot ? '<p class="pending">This case used an earlier data snapshot. Prepare a new draft to use the current record details.</p>' : ''}<details><summary>Agent tools and evidence checks</summary><pre>${esc(JSON.stringify({ model: c.model, checks: c.checks, tools: c.trace }, null, 2))}</pre></details>${c.status === 'awaiting_review' ? `<label for="draft-${c.id}">Staff draft — review before approving</label><textarea id="draft-${c.id}" rows="5">${esc(c.draft.response)}</textarea><div class="case-actions"><button data-id="${c.id}" data-decision="approve" ${Object.values(c.checks).every(Boolean) && c.snapshot_hash === currentSnapshot ? '' : 'disabled'}>Approve reply</button><button class="reject" data-id="${c.id}" data-decision="reject">Reject draft</button></div>` : ''}<div class="${c.response ? 'reply' : 'pending'}"><b>Patient-view preview</b><br>${c.response ? esc(c.response) : c.status === 'rejected' ? 'No reply published. Staff needs to investigate further.' : 'No reply published. The draft is waiting for staff review.'}</div></article>`).join('');
   document.querySelectorAll('[data-decision]').forEach(button => button.onclick = () => busy(button, async () => {
     await api('/cases/' + button.dataset.id + '/review', { decision: button.dataset.decision, reply: $('#draft-' + button.dataset.id).value });
     $('#notice').textContent = 'Review decision saved in SQL Server. No message was sent to a real patient.';

@@ -24,8 +24,9 @@ def clean_resource(resource):
     common = {'resourceType', 'id', 'status', 'active'}
     allowed = {
         'Patient': common,
-        'Encounter': common | {'subject', 'period', 'class'},
-        'ExplanationOfBenefit': common | {'patient', 'billablePeriod', 'outcome', 'total', 'payment'},
+        'Encounter': common | {'subject', 'period', 'class', 'type', 'serviceType', 'reasonCode'},
+        'ExplanationOfBenefit': common | {'patient', 'billablePeriod', 'outcome', 'total', 'payment',
+                                         'type', 'use', 'created', 'insurer', 'item', 'adjudication'},
     }
     if kind not in allowed or not resource.get('id'):
         raise ValueError('Unsupported or unidentified resource')
@@ -34,7 +35,32 @@ def clean_resource(resource):
     for field in ('patient', 'subject'):
         if field in result:
             result[field] = {'reference': result[field].get('reference', '')}
+    if 'insurer' in result:
+        result['insurer'] = {k: v for k, v in result['insurer'].items() if k in ('reference', 'display')}
+    if 'item' in result:
+        result['item'] = [clean_line(item) for item in result['item']]
     return result
+
+
+def clean_line(item):
+    """Retain source service/billing fields, excluding addresses and free-text notes."""
+    fields = {'sequence', 'category', 'productOrService', 'modifier', 'diagnosisSequence',
+              'servicedDate', 'servicedPeriod', 'locationCodeableConcept', 'quantity',
+              'unitPrice', 'factor', 'net', 'adjudication', 'encounter'}
+    result = {k: deepcopy(v) for k, v in item.items() if k in fields}
+    if 'encounter' in result:
+        result['encounter'] = [{'reference': r.get('reference', '')} for r in result['encounter']]
+    for nested in ('detail', 'subDetail'):
+        if nested in item:
+            result[nested] = [clean_line(child) for child in item[nested]]
+    return result
+
+
+def concept_text(concept):
+    """Use labels recorded by the source, never model-generated code descriptions."""
+    if concept.get('text'):
+        return concept['text']
+    return '; '.join(c.get('display') or c.get('code', '') for c in concept.get('coding', [])) or 'Not provided'
 
 
 def belongs_to(resource, patient_id, patient_full_url=None):
@@ -133,4 +159,29 @@ def financial_facts(resource):
         if not amount.is_finite():
             raise ValueError('Non-finite FHIR payment')
         out.append({'kind': 'EOB payment', 'category': 'payment', 'value': str(amount), 'currency': payment.get('currency', 'unknown')})
+    def add_amount(money, kind, category, sequence=None):
+        if 'value' not in money:
+            return
+        value = Decimal(str(money['value']))
+        if not value.is_finite():
+            raise ValueError('Non-finite FHIR line amount')
+        out.append({'kind': kind, 'category': category, 'sequence': sequence,
+                    'value': str(value), 'currency': money.get('currency', 'unknown')})
+
+    def adjudications(items, sequence=None):
+        for item in items:
+            codes = item.get('category', {}).get('coding', [])
+            add_amount(item.get('amount', {}), 'EOB adjudication',
+                       codes[0].get('code', 'unspecified') if codes else 'unspecified', sequence)
+
+    def lines(items):
+        for item in items:
+            for field in ('unitPrice', 'net'):
+                add_amount(item.get(field, {}), 'EOB line amount', field, item.get('sequence'))
+            adjudications(item.get('adjudication', []), item.get('sequence'))
+            lines(item.get('detail', []))
+            lines(item.get('subDetail', []))
+
+    adjudications(resource.get('adjudication', []))
+    lines(resource.get('item', []))
     return out

@@ -4,12 +4,13 @@ import json
 import os
 from contextlib import contextmanager
 from datetime import datetime, UTC
+from urllib.parse import quote
 
 import oracledb
 import pymssql
 
 from .config import required
-from .fhir import financial_facts
+from .fhir import financial_facts, concept_text
 
 
 @contextmanager
@@ -132,11 +133,24 @@ def evidence(key):
     eobs = []
     for r in records:
         if r['resource_type'] == 'ExplanationOfBenefit':
-            eobs.append({'id': r['resource_id'], 'status': r['fhir_status'], 'financial_facts': financial_facts(r['resource'])})
+            source = r['resource']
+            eobs.append({'id': r['resource_id'], 'status': r['fhir_status'],
+                         'financial_facts': financial_facts(source),
+                         'insurer': source.get('insurer', {}).get('display'),
+                         'items': [{'sequence': i.get('sequence'),
+                                    'service': concept_text(i.get('productOrService', {})),
+                                    'codes': i.get('productOrService', {}).get('coding', []),
+                                    'service_period': i.get('servicedPeriod', {}),
+                                    'line_amounts': {k: i[k] for k in ('unitPrice', 'net', 'adjudication') if k in i}}
+                                   for i in source.get('item', [])]})
     return {'source_id': 'sqlserver-record:' + key, 'source_mode': manifest['source_mode'],
             'source_note': manifest['source_note'], 'snapshot_hash': manifest['snapshot_hash'],
             'patient_id': manifest['patient_id'], 'resource_count': len(records),
             'encounter_count': sum(r['resource_type'] == 'Encounter' for r in records),
+            'visit_records': [{'id': r['resource_id'], 'period': r['resource'].get('period', {}),
+                               'types': [concept_text(t) for t in r['resource'].get('type', [])],
+                               'recorded_reasons': [concept_text(t) for t in r['resource'].get('reasonCode', [])]}
+                              for r in records if r['resource_type'] == 'Encounter'],
             'eobs': eobs, 'personal_bill_balance_available': False, 'truncated': manifest['truncated']}
 
 
@@ -144,15 +158,26 @@ def record_preview(key):
     """Readable imported fields for the local lab, without inventing missing data."""
     manifest, records = get_patient(key)
     visits, insurance = [], []
+    visit_ids = {r['resource_id'] for r in records if r['resource_type'] == 'Encounter'}
     for row in records:
         r = row['resource']
+        source_url = (manifest['source'].rstrip('/') + '/' + row['resource_type'] + '/' + quote(r['id'], safe='')
+                      if manifest['source_mode'] == 'live_fhir' else manifest['source'])
+        detail = {'imported_resource': r, 'source_url': source_url}
         if row['resource_type'] == 'Encounter':
             visits.append({'id': r['id'], 'period': r.get('period', {}),
-                           'status': r.get('status'), 'class': r.get('class', {})})
+                           'status': r.get('status'), 'class': r.get('class', {}),
+                           'types': r.get('type', []), 'reasons': r.get('reasonCode', []),
+                           **detail})
         elif row['resource_type'] == 'ExplanationOfBenefit':
+            references = {v.get('reference') for item in r.get('item', []) for v in item.get('encounter', [])}
+            linked = sorted(vid for vid in visit_ids if references & {
+                'Encounter/' + vid, 'urn:uuid:' + vid, manifest['source'].rstrip('/') + '/Encounter/' + vid})
             insurance.append({'id': r['id'], 'period': r.get('billablePeriod', {}),
                               'status': r.get('status'), 'outcome': r.get('outcome'),
-                              'financial_facts': financial_facts(r)})
+                              'financial_facts': financial_facts(r), 'insurer': r.get('insurer', {}),
+                              'type': r.get('type', {}), 'use': r.get('use'), 'created': r.get('created'),
+                              'items': r.get('item', []), 'linked_visit_ids': linked, **detail})
     return {'patient_id': manifest['patient_id'], 'source_label': manifest['source_label'],
             'source_mode': manifest['source_mode'], 'imported_at': manifest['imported_at'],
             'counts': {'patients': sum(r['resource_type'] == 'Patient' for r in records),

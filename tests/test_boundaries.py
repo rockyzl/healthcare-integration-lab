@@ -49,6 +49,28 @@ def test_amounts_are_not_combined_into_a_patient_balance():
         fhir.financial_facts({'payment': {'amount': {'value': 'NaN'}}})
 
 
+def test_service_content_survives_projection_without_address_or_narrative():
+    raw = {'resourceType': 'ExplanationOfBenefit', 'id': 'e',
+           'text': {'div': 'PRIVATE NARRATIVE'}, 'identifier': [{'value': 'PRIVATE ID'}],
+           'item': [{'sequence': 1, 'productOrService': {'coding': [{'code': '162673000', 'display': 'General examination of patient (procedure)'}]},
+                     'net': {'value': 42.5, 'currency': 'USD'},
+                     'locationAddress': {'line': ['PRIVATE ADDRESS']}}]}
+    cleaned = fhir.clean_resource(raw)
+    assert cleaned['item'][0]['productOrService'] == raw['item'][0]['productOrService']
+    assert cleaned['item'][0]['net'] == {'value': 42.5, 'currency': 'USD'}
+    assert 'PRIVATE' not in json.dumps(cleaned)
+
+
+def test_public_fixture_includes_actual_lines_and_preserves_missing_line_amounts():
+    resources = [json.loads(r['payload']) for r in fhir.load_fixture()['resources']]
+    encounters = [r for r in resources if r['resourceType'] == 'Encounter']
+    assert all(r['type'][0]['coding'][0]['code'] for r in encounters)
+    lines = [i for r in resources if r['resourceType'] == 'ExplanationOfBenefit' for i in r['item']]
+    assert len(lines) == 5
+    assert any(fhir.concept_text(i['productOrService']) == 'Prediabetes' for i in lines)
+    assert all('net' not in line and 'unitPrice' not in line for line in lines)
+
+
 def test_fabricated_amount_missing_tool_and_bad_reference_fail_checks():
     key = 'a' * 64
     trace = [
