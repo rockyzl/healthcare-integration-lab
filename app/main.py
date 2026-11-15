@@ -16,14 +16,18 @@ from . import fhir
 from .agent import draft_reply
 from .config import ROOT
 
-app = FastAPI(title='Healthcare Integration Lab', description='Local synthetic-data learning prototype')
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost', 'testserver'])
+app = FastAPI(title='Healthcare Integration Lab', description='Synthetic-data integration learning prototype')
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=os.getenv('LAB_ALLOWED_HOSTS', '127.0.0.1,localhost,testserver').split(','))
 app.mount('/assets', StaticFiles(directory=ROOT / 'app/static'), name='assets')
 operation_lock = asyncio.Lock()
 
 
 @app.middleware('http')
 async def local_write_guard(request: Request, call_next):
+    if os.getenv('LAB_CLOUD') == 'true':
+        from .cloud_auth import verify_gateway
+        if not await run_in_threadpool(verify_gateway, request.headers.get('authorization', '')):
+            return JSONResponse({'detail': 'Authorized demo gateway required.'}, status_code=401)
     if request.method == 'POST' and request.headers.get('X-Lab-Request') != 'demo':
         return JSONResponse({'detail': 'Use the local demo page.'}, status_code=403)
     response = await call_next(request)

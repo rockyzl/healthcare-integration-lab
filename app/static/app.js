@@ -5,6 +5,21 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 let selected = '';
 let currentPreview = null;
 let currentSnapshot = '';
+let activeTab = 'sources';
+let hasRecords = false;
+function setTab(tab, focus = false) {
+  if (tab !== 'sources' && !hasRecords) return;
+  activeTab = tab;
+  for (const [name, id] of Object.entries({sources:'source-panel', records:'record-panel', agent:'agent-panel'})) {
+    $('#' + id).hidden = name !== tab;
+    const button = document.querySelector(`[data-tab="${name}"]`);
+    button.setAttribute('aria-pressed', String(name === tab));
+    button.disabled = name !== 'sources' && !hasRecords;
+  }
+  if (focus) reveal(tab === 'records' ? $('#record-panel') : tab === 'agent' ? $('#agent-panel') : $('#source-panel'));
+}
+document.querySelectorAll('[data-tab]').forEach(button => button.onclick = () => setTab(button.dataset.tab));
+
 try { selected = localStorage.getItem('lab-selected-record') || ''; } catch {}
 
 function rememberSelection() {
@@ -12,14 +27,14 @@ function rememberSelection() {
 }
 
 async function api(path, body) {
-  const response = await fetch('/api' + path, {
+  const response = await fetch((location.pathname.startsWith('/integration') ? '/integration/api' : '/api') + path, {
     method: body === undefined ? 'GET' : 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Lab-Request': 'demo' },
     ...(body === undefined ? {} : { body: JSON.stringify(body) })
   });
   let data;
   try { data = await response.json(); }
-  catch { throw Error('The local service could not complete this request. Check the database connections and try again.'); }
+  catch { throw Error('The service could not complete this request. Check the database connections and try again.'); }
   if (!response.ok) throw Error(typeof data.detail === 'string' ? data.detail : 'Check the selected record and enter a question of 5–700 characters.');
   return data;
 }
@@ -58,9 +73,9 @@ function renderPreview(preview) {
 
 async function refresh() {
   const data = await api('/status');
-  $('#connections').innerHTML = Object.entries(data.systems).map(([name, system]) => `<span class="connection ${system.connected ? 'good' : 'bad'}"><b>${name === 'sqlserver' ? 'SQL Server' : 'Oracle'}</b> · ${system.connected ? 'Connected · ' + esc(system.version) : 'Not connected'}</span>`).join('');
-  $('#record-panel').hidden = !data.patients.length;
-  $('#agent-panel').hidden = !data.patients.length;
+  $('#connections').innerHTML = Object.entries(data.systems).map(([name, system]) => `<span title="${esc(system.version || 'Unavailable')}" class="connection ${system.connected ? 'good' : 'bad'}"><b>${name === 'sqlserver' ? 'SQL Server' : 'Oracle'}</b> · ${system.connected ? 'Connected' : 'Not connected'}</span>`).join('');
+  hasRecords = data.patients.length > 0;
+  setTab(activeTab);
   $('#patient').innerHTML = data.patients.map(patient => `<option value="${esc(patient.patient_key)}">${esc(patient.source_label)} · ${esc(patient.patient_id.slice(0, 8))}</option>`).join('');
   if (data.patients.length) {
     if (!data.patients.some(patient => patient.patient_key === selected)) selected = data.patients[0].patient_key;
@@ -111,6 +126,7 @@ async function importSource(source, button) {
   try {
     const result = await api('/import/' + source, {});
     selected = result.patient.patient_key;
+    activeTab = 'records';
     rememberSelection();
     await refresh();
     const counts = currentPreview.counts;
@@ -135,7 +151,7 @@ $('#patient').onchange = async () => {
   try { await showRecord(); await showCases(); }
   catch (error) { $('#notice').textContent = error.message; }
 };
-$('#go-to-agent').onclick = () => reveal($('#agent-panel'), $('#question'));
+$('#go-to-agent').onclick = () => { setTab('agent', true); $('#question').focus({preventScroll:true}); };
 $('#run-agent').onclick = () => busy($('#run-agent'), async () => {
   $('#notice').textContent = 'The agent is reading both databases and preparing a draft…';
   await api('/cases', { patient_key: selected, message: $('#question').value });
@@ -143,4 +159,4 @@ $('#run-agent').onclick = () => busy($('#run-agent'), async () => {
   $('#notice').textContent = 'Draft ready. Review the evidence below, then approve or reject.';
   reveal($('#cases'));
 });
-refresh().catch(error => $('#notice').textContent = error.message);
+refresh().then(() => { if (hasRecords) setTab('records'); }).catch(error => $('#notice').textContent = error.message);

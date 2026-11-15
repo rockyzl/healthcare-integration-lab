@@ -2,7 +2,7 @@
 
 An independent, runnable learning project by Lu Zhang: read FHIR test data, store it in **Microsoft SQL Server**, copy it to **Oracle Database Free**, verify the copy, and ask a **LangGraph-backed agent on Vertex AI** to prepare an explanation for human review.
 
-This is an integration and evidence-handling demo using synthetic data. It is not affiliated with Mayo Clinic or connected to Epic, ServiceNow, UKG, or a hospital. The reviewer and patient preview share a local demonstration page; this project does not implement patient authentication or production SSO.
+This is an integration and evidence-handling demo using synthetic data. It is not affiliated with Mayo Clinic or connected to Epic, ServiceNow, UKG, or a hospital. The reviewer and patient preview share a demonstration workspace; this project does not implement patient authentication or production SSO.
 
 ![Imported visit content and insurance service items in the integration lab](docs/overview.png)
 
@@ -29,11 +29,15 @@ flowchart LR
   D --> G[LangGraph agent / Vertex AI]
   F --> G
   G --> H[Draft and evidence checks]
-  H --> I[Local staff review]
+  H --> I[Demonstration staff review]
   I --> J[Approved reply in patient-view preview]
 ```
 
 Implementation detail: the importer writes the same validated snapshot to SQL Server and then Oracle, using separate transactions. There is no distributed transaction or change-data-capture service. If Oracle fails after SQL Server succeeds, the request reports failure and can be rerun without duplicating records.
+
+## Online demo
+
+[Open the unified demo](https://revenue-cycle-agent-1038659864130.us-central1.run.app) → **Data integration**. SQL Server and Oracle run on a dedicated Google Cloud VM; the existing Cloud Run site provides the frontend and authenticated private-service gateway. See [cloud runtime and costs](docs/cloud/deployment.md).
 
 ## Run locally
 
@@ -56,7 +60,7 @@ The databases retain data in project-specific volumes. `uv run python scripts/co
 
 ## A three-minute demonstration
 
-1. Click **Load billing example**. Select a visit to see its description, recorded reason, and codes. Below it, inspect the three insurance records and their five service line items, including the source labels for general examination, anemia, and prediabetes. Expand **View imported FHIR JSON** to inspect or download the retained fields; **Open original source** opens the upstream record or fixture. **Technical details** shows the seven-record database comparison.
+1. Click **Load billing example**. Select a visit to see its description, recorded reason, and codes. Choose **Insurance**, then expand the three insurance records and their five service line items, including the source labels for general examination, anemia, and prediabetes. Expand **View imported FHIR JSON** to inspect or download the retained fields; **Open original source** opens the upstream record or fixture. **Evidence checkpoint** shows the seven-record database comparison.
 2. Ask: **“What specific services and codes appear in these insurance records? Is a separate charge provided for each line?”** The fixture contains claim totals but no separate line charges. The agent must preserve that distinction. You can also ask what information is still missing before explaining a patient's bill.
 3. Click **Prepare an AI draft**, expand **Agent tools and evidence checks**, and show the actual SQL Server and Oracle tool results.
 4. Edit if necessary and click **Approve reply**. The patient-view preview changes only after that decision. No external patient message is sent.
@@ -71,8 +75,8 @@ The databases retain data in project-specific volumes. `uv run python scripts/co
 | SQL Server | Real Microsoft container, bound queries, JSON functions, transactional imports, persisted reviews |
 | Oracle | Real Oracle Free container, bound queries, CLOB JSON storage, JSON functions, grouped reporting counts |
 | Agent | Real Vertex model calls via LangChain `create_agent`, which runs on LangGraph; two fixed-scope read-only tools |
-| Staff review | Local application logic; persisted in SQL Server; no UiPath connection in this repository |
-| Patient preview | Local preview of an approved response, not a separately authenticated patient portal |
+| Staff review | Demonstration application logic; persisted in SQL Server; no UiPath connection in this repository |
+| Patient preview | Shared preview of an approved response, not a separately authenticated patient portal |
 | Epic / ServiceNow / UKG | Not connected; FHIR compatibility alone does not demonstrate Epic integration |
 
 The separate [Revenue Cycle Agent](https://github.com/rockyzl/revenue-cycle-agent) project demonstrates real UiPath Maestro and Action Center integration. This lab concentrates on FHIR and relational databases.
@@ -88,7 +92,7 @@ The separate [Revenue Cycle Agent](https://github.com/rockyzl/revenue-cycle-agen
 - The agent cannot supply arbitrary SQL or a patient ID to its tools. Tools close over the selected test-record key.
 - Draft checks require both tool outputs, exact evidence references, supported quoted dollar amounts, matching database copies, and an unchanged snapshot. These checks are deliberately limited; they do not prove every sentence is correct.
 - Approval fails when checks fail, the source snapshot changed, or the case has already been reviewed. Rejection publishes no reply. Staff may edit the draft; that edit represents the human decision and is not a second LLM evaluation.
-- This local lab has no production authentication, authorization, audit-integrity, or PHI compliance claim. Do not expose its port publicly or load real patient information.
+- This lab has no production patient authentication, authorization, audit-integrity, or PHI compliance claim. The cloud API accepts only the designated gateway identity, while the demo workspace remains public and shared. Do not expose database ports or load real patient information.
 
 ## Verification
 
@@ -104,6 +108,8 @@ The initial verified run passed **14 automated tests**, imported **7 fixture rec
 The [import-display verification](reports/import-display-verification.json) additionally checks automatic scrolling to visible results, dated visits, recorded zero payments, missing-insurance guidance, source selection across reloads, and the next-step button on desktop and mobile.
 
 The record-content update passed **16 automated tests**, including the real database checks. Its [verification record](reports/record-content-verification.json) covers visit selection, source reason codes, all five fixture service lines, exact JSON downloads, source links, stale-draft notices, and desktop/mobile display. A real model call read the detailed service items through its SQL Server tool and correctly reported that separate line charges were unavailable.
+
+The cloud deployment passes **18 tests** with real database checks. A real hosted run imported both sources, reconciled their independently computed hashes, called Vertex AI, saved an approved demonstration response, rejected a repeated review, and retained the response across an API-container restart. See [cloud verification](reports/cloud-verification-2026-11-14.json).
 
 ## Code map
 

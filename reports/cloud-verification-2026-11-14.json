@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15T04:46:25Z",
+  "runtime": "GCP Compute Engine + Cloud Run Direct VPC gateway",
+  "model": "gemini-3.8-flash",
+  "systems": {
+    "sqlserver": {
+      "connected": true,
+      "version": "16.0.4325.4"
+    },
+    "oracle": {
+      "connected": true,
+      "version": "Oracle AI Database 26ai Free 23.26.3.0.0"
+    }
+  },
+  "sources": {
+    "fixture": {
+      "counts": {
+        "patients": 1,
+        "visits": 3,
+        "insurance": 3
+      },
+      "database_comparison": {
+        "sql_count": 7,
+        "oracle_count": 7,
+        "hashes_match": true,
+        "stored_hashes_valid": true
+      }
+    },
+    "live": {
+      "counts": {
+        "patients": 1,
+        "visits": 23,
+        "insurance": 0
+      },
+      "database_comparison": {
+        "sql_count": 24,
+        "oracle_count": 24,
+        "hashes_match": true,
+        "stored_hashes_valid": true
+      }
+    }
+  },
+  "model_checks": {
+    "both_tools_called": true,
+    "references_match": true,
+    "quoted_amounts_in_evidence": true,
+    "oracle_matches_sqlserver": true,
+    "human_review_required": true,
+    "snapshot_unchanged": true
+  },
+  "review_status": "approved",
+  "review_method": "Automated demo verification, explicitly labeled; not independent human review",
+  "repeat_review_http": 409,
+  "persisted_after_app_restart": true,
+  "private_api_without_token_http": 401,
+  "tests": {
+    "billing": 37,
+    "integration_with_real_databases": 18
+  }
+}

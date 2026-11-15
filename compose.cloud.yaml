@@ -1,0 +1,13 @@
+# Real databases; all database ports stay on VM loopback.
+services:
+  sqlserver:
+    restart: unless-stopped
+  oracle:
+    restart: unless-stopped
+  app:
+    build: .
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env.cloud
+    volumes:
+      - ./data:/app/data:ro
