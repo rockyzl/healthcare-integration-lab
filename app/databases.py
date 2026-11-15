@@ -140,6 +140,27 @@ def evidence(key):
             'eobs': eobs, 'personal_bill_balance_available': False, 'truncated': manifest['truncated']}
 
 
+def record_preview(key):
+    """Readable imported fields for the local lab, without inventing missing data."""
+    manifest, records = get_patient(key)
+    visits, insurance = [], []
+    for row in records:
+        r = row['resource']
+        if row['resource_type'] == 'Encounter':
+            visits.append({'id': r['id'], 'period': r.get('period', {}),
+                           'status': r.get('status'), 'class': r.get('class', {})})
+        elif row['resource_type'] == 'ExplanationOfBenefit':
+            insurance.append({'id': r['id'], 'period': r.get('billablePeriod', {}),
+                              'status': r.get('status'), 'outcome': r.get('outcome'),
+                              'financial_facts': financial_facts(r)})
+    return {'patient_id': manifest['patient_id'], 'source_label': manifest['source_label'],
+            'source_mode': manifest['source_mode'], 'imported_at': manifest['imported_at'],
+            'counts': {'patients': sum(r['resource_type'] == 'Patient' for r in records),
+                       'visits': len(visits), 'insurance': len(insurance)},
+            'visits': sorted(visits, key=lambda r: r['period'].get('start', ''), reverse=True),
+            'insurance': sorted(insurance, key=lambda r: r['period'].get('start', ''), reverse=True)}
+
+
 def save_case(case):
     with sql_connection() as c:
         q = c.cursor()

@@ -64,7 +64,7 @@ async def import_source(source: Literal['live', 'fixture']):
 @app.get('/api/records/{key}')
 def record(key: str):
     try:
-        return {'record': db.evidence(key), 'comparison': db.compare(key)}
+        return {'record': db.evidence(key), 'comparison': db.compare(key), 'preview': db.record_preview(key)}
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
 

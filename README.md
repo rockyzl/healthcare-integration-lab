@@ -56,11 +56,11 @@ The databases retain data in project-specific volumes. `uv run python scripts/co
 
 ## A three-minute demonstration
 
-1. Click **Load billing example**. Show seven records in both databases and matching hashes.
+1. Click **Load billing example**. The page jumps to **Here is what was imported**: one test patient, three dated visit records, and three insurance records with submitted/payment amounts. Open **Technical details** to inspect the seven-record database comparison.
 2. Ask: **“The patient received an insurance explanation. What amounts are recorded, and what information is still missing before we tell them what they owe?”**
 3. Click **Prepare an AI draft**, expand **Agent tools and evidence checks**, and show the actual SQL Server and Oracle tool results.
 4. Edit if necessary and click **Approve reply**. The patient-view preview changes only after that decision. No external patient message is sent.
-5. Select **Read live FHIR records** and run the same question. If that test patient has no EOB, the answer must say that insurance-payment information is unavailable.
+5. Select **Read live FHIR records**. The imported visits appear immediately; an explicit empty state explains missing insurance records and offers to load the billing example. Run the same question: if the test patient has no EOB, the answer must say that insurance-payment information is unavailable.
 
 ## What is real, and what is simulated
 
@@ -99,6 +99,8 @@ RUN_DB_TESTS=1 uv run pytest -q                # includes real database checks
 Database tests create their own temporary test-record scope and clean it up. They verify idempotence, parameterized lookups, altered Oracle content detection, failed-check rejection, repeat-review rejection, and stale-snapshot rejection. Live verification results are recorded in `reports/verification.json` when produced; CI does not claim to test external services.
 
 The initial verified run passed **14 automated tests**, imported **7 fixture records** and **24 live test-server records** into both engines, and completed two real Vertex agent runs. Desktop/mobile browser checks verified English text, no horizontal overflow, and an approval still present after reloading. See [the verification record](reports/verification.json) and [interview notes](docs/interview-notes.md).
+
+The [import-display verification](reports/import-display-verification.json) additionally checks automatic scrolling to visible results, dated visits, recorded zero payments, missing-insurance guidance, source selection across reloads, and the next-step button on desktop and mobile.
 
 ## Code map
 

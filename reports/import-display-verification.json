@@ -1,0 +1,26 @@
+{
+  "verified_at_utc": "2026-11-15T03:15:55.776794+00:00",
+  "checks": {
+    "fixture_visible_counts": [
+      1,
+      3,
+      3
+    ],
+    "live_visible_counts": [
+      1,
+      23,
+      0
+    ],
+    "visit_rows_expand": true,
+    "recorded_zero_payment_displayed": true,
+    "automatic_result_scroll_and_focus": true,
+    "source_selection_survives_reload": true,
+    "empty_insurance_explained": true,
+    "empty_state_loads_example": true,
+    "next_button_focuses_question": true,
+    "desktop_and_mobile": true,
+    "no_horizontal_overflow": true,
+    "page_errors": []
+  },
+  "note": "Browser interactions used real local API and both databases; no model call or review decision was made."
+}
