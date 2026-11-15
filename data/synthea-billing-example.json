@@ -1,0 +1,218 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "d5582579-7193-4866-5560-a01e723b6552"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Patient"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:3699e7e7-8b1b-4a68-8011-e7a166598566",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "3699e7e7-8b1b-4a68-8011-e7a166598566",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "period": {
+          "start": "1979-01-02T11:44:52-05:00",
+          "end": "1979-01-02T11:59:52-05:00"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "Encounter"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:35a85c2e-272c-d6ba-cea3-134ce384378b",
+      "resource": {
+        "resourceType": "ExplanationOfBenefit",
+        "id": "35a85c2e-272c-d6ba-cea3-134ce384378b",
+        "status": "active",
+        "patient": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "billablePeriod": {
+          "start": "1979-01-02T11:59:52-05:00",
+          "end": "1980-01-02T11:59:52-05:00"
+        },
+        "outcome": "complete",
+        "total": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+                  "code": "submitted",
+                  "display": "Submitted Amount"
+                }
+              ],
+              "text": "Submitted Amount"
+            },
+            "amount": {
+              "value": 129.16,
+              "currency": "USD"
+            }
+          }
+        ],
+        "payment": {
+          "amount": {
+            "value": 0.0,
+            "currency": "USD"
+          }
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "ExplanationOfBenefit"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:39ed6877-e739-12f8-1fae-f88933a96d26",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "39ed6877-e739-12f8-1fae-f88933a96d26",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "period": {
+          "start": "1985-01-08T11:44:52-05:00",
+          "end": "1985-01-08T11:59:52-05:00"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "Encounter"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:e5958f8f-e51f-9336-4796-2bb5590c8606",
+      "resource": {
+        "resourceType": "ExplanationOfBenefit",
+        "id": "e5958f8f-e51f-9336-4796-2bb5590c8606",
+        "status": "active",
+        "patient": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "billablePeriod": {
+          "start": "1985-01-08T11:59:52-05:00",
+          "end": "1986-01-08T11:59:52-05:00"
+        },
+        "outcome": "complete",
+        "total": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+                  "code": "submitted",
+                  "display": "Submitted Amount"
+                }
+              ],
+              "text": "Submitted Amount"
+            },
+            "amount": {
+              "value": 129.16,
+              "currency": "USD"
+            }
+          }
+        ],
+        "payment": {
+          "amount": {
+            "value": 0.0,
+            "currency": "USD"
+          }
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "ExplanationOfBenefit"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:ece9e706-21d8-e2bc-02fd-6df6a7e90c5a",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ece9e706-21d8-e2bc-02fd-6df6a7e90c5a",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "period": {
+          "start": "1985-01-09T14:59:56-05:00",
+          "end": "1985-01-09T15:14:56-05:00"
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "Encounter"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:13136b82-44a9-4a67-f73e-3634e4235a87",
+      "resource": {
+        "resourceType": "ExplanationOfBenefit",
+        "id": "13136b82-44a9-4a67-f73e-3634e4235a87",
+        "status": "active",
+        "patient": {
+          "reference": "urn:uuid:d5582579-7193-4866-5560-a01e723b6552"
+        },
+        "billablePeriod": {
+          "start": "1985-01-09T15:14:56-05:00",
+          "end": "1986-01-09T15:14:56-05:00"
+        },
+        "outcome": "complete",
+        "total": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+                  "code": "submitted",
+                  "display": "Submitted Amount"
+                }
+              ],
+              "text": "Submitted Amount"
+            },
+            "amount": {
+              "value": 77.49,
+              "currency": "USD"
+            }
+          }
+        ],
+        "payment": {
+          "amount": {
+            "value": 0.0,
+            "currency": "USD"
+          }
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "ExplanationOfBenefit"
+      }
+    }
+  ]
+}

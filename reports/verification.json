@@ -1,0 +1,296 @@
+{
+  "verified_at_utc": "2026-11-15T02:37:10.468783+00:00",
+  "live_model_test": true,
+  "sources": {
+    "fixture": {
+      "patient": {
+        "patient_key": "5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30",
+        "patient_id": "d5582579-7193-4866-5560-a01e723b6552",
+        "source": "https://raw.githubusercontent.com/synthetichealth/synthea/7187764193c0204e98080fc2338d3ef373f06410/src/test/resources/flexporter/sample_complete_patient.json",
+        "source_mode": "pinned_public_fixture",
+        "source_label": "Public Synthea example",
+        "source_note": "A pinned synthetic example file, not a live hospital feed.",
+        "truncated": false,
+        "imported_at": "2026-11-15T02:37:10.586091+00:00",
+        "snapshot_hash": "a8b5942a0ab74586383ceb99e423a223586ac89d49491334aa20dbe03cb332af"
+      },
+      "comparison": {
+        "source_id": "oracle-report:5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30",
+        "sql_count": 7,
+        "oracle_count": 7,
+        "oracle_counts_by_type": {
+          "Encounter": 3,
+          "ExplanationOfBenefit": 3,
+          "Patient": 1
+        },
+        "hashes_match": true,
+        "stored_hashes_valid": true,
+        "oracle_statuses": [
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "ExplanationOfBenefit",
+            "status": "active"
+          },
+          {
+            "type": "ExplanationOfBenefit",
+            "status": "active"
+          },
+          {
+            "type": "ExplanationOfBenefit",
+            "status": "active"
+          },
+          {
+            "type": "Patient",
+            "status": null
+          }
+        ],
+        "sql_snapshot_hash": "a8b5942a0ab74586383ceb99e423a223586ac89d49491334aa20dbe03cb332af",
+        "oracle_snapshot_hash": "a8b5942a0ab74586383ceb99e423a223586ac89d49491334aa20dbe03cb332af",
+        "source_mode": "pinned_public_fixture"
+      }
+    },
+    "live": {
+      "patient": {
+        "patient_key": "9f874858eadaef051516f18ee32157c1b3cf058dea4e4b61926596d10b431193",
+        "patient_id": "98671a34-1c6e-4569-a1bc-6ee40c8d03a5",
+        "source": "https://r4.smarthealthit.org",
+        "source_mode": "live_fhir",
+        "source_label": "Live SMART FHIR R4 sandbox",
+        "source_note": "Live public test API; Synthea-marked record. No hospital or Epic connection.",
+        "fhir_version": "4.0.0",
+        "reported_totals": {
+          "Encounter": 23,
+          "ExplanationOfBenefit": 0
+        },
+        "truncated": false,
+        "imported_at": "2026-11-15T02:37:25.705606+00:00",
+        "snapshot_hash": "192b7aaa792eccd89b0b3fa660f5b81948e6f122be4a786986a76339ed239797"
+      },
+      "comparison": {
+        "source_id": "oracle-report:9f874858eadaef051516f18ee32157c1b3cf058dea4e4b61926596d10b431193",
+        "sql_count": 24,
+        "oracle_count": 24,
+        "oracle_counts_by_type": {
+          "Encounter": 23,
+          "Patient": 1
+        },
+        "hashes_match": true,
+        "stored_hashes_valid": true,
+        "oracle_statuses": [
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Encounter",
+            "status": "finished"
+          },
+          {
+            "type": "Patient",
+            "status": null
+          }
+        ],
+        "sql_snapshot_hash": "192b7aaa792eccd89b0b3fa660f5b81948e6f122be4a786986a76339ed239797",
+        "oracle_snapshot_hash": "192b7aaa792eccd89b0b3fa660f5b81948e6f122be4a786986a76339ed239797",
+        "source_mode": "live_fhir"
+      }
+    }
+  },
+  "cases": [
+    {
+      "source": "fixture",
+      "id": "21c742903c714dceb1b814ba9d627b5d",
+      "status": "approved",
+      "model": "gemini-3.8-flash",
+      "checks": {
+        "both_tools_called": true,
+        "references_match": true,
+        "quoted_amounts_in_evidence": true,
+        "oracle_matches_sqlserver": true,
+        "human_review_required": true,
+        "snapshot_unchanged": true
+      },
+      "tools_called": [
+        "read_sqlserver_record",
+        "read_oracle_reconciliation"
+      ],
+      "draft": {
+        "response": "This test record is from a pinned public Synthea example file, not a hospital or Epic feed. Oracle hash comparison verifies copied content only, not coverage or clinical facts. FHIR Explanation of Benefit records are not patient bills. The recorded submitted totals are $77.49, $129.16, and $129.16, with recorded payments of $0.0, $0.0, and $0.0. Final balances cannot be calculated by subtracting payments from charges. Deductible, coinsurance, copays, and final billing statements remain missing before determining what the patient owes.",
+        "evidence_ids": [
+          "sqlserver-record:5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30",
+          "oracle-report:5e6dd25d823d03e4c551513f04d6b40a81e2e8f67e6c8bbb407d6440c9c71f30"
+        ],
+        "missing_information": [
+          "Deductible amounts",
+          "Coinsurance and copay details",
+          "Actual patient billing statements and other payments"
+        ]
+      }
+    },
+    {
+      "source": "live",
+      "id": "a00231c93a114d6cb223c38d0ad390dd",
+      "status": "approved_via_browser",
+      "model": "gemini-3.8-flash",
+      "checks": {
+        "both_tools_called": true,
+        "references_match": true,
+        "quoted_amounts_in_evidence": true,
+        "oracle_matches_sqlserver": true,
+        "human_review_required": true,
+        "snapshot_unchanged": true
+      },
+      "tools_called": [
+        "read_sqlserver_record",
+        "read_oracle_reconciliation"
+      ],
+      "draft": {
+        "response": "This test record from a live public test API (not a hospital or Epic feed) contains no insurance-payment data, as EOB records are empty. No USD amounts are recorded. Oracle hash reconciliation confirms copied reporting content matches but does not validate insurance coverage or clinical facts. FHIR EOBs are not patient bills, and final balances cannot be calculated from charges alone. Missing information includes deductible, coinsurance, copays, actual payer adjudications, and final patient billing statements needed to determine any amount owed.",
+        "evidence_ids": [
+          "sqlserver-record:9f874858eadaef051516f18ee32157c1b3cf058dea4e4b61926596d10b431193",
+          "oracle-report:9f874858eadaef051516f18ee32157c1b3cf058dea4e4b61926596d10b431193"
+        ],
+        "missing_information": [
+          "deductible and coinsurance amounts",
+          "actual patient billing balance",
+          "insurance payment and adjudication details"
+        ]
+      }
+    }
+  ],
+  "databases": {
+    "sqlserver": {
+      "connected": true,
+      "version": "16.0.4325.4"
+    },
+    "oracle": {
+      "connected": true,
+      "version": "Oracle AI Database 26ai Free 23.26.3.0.0"
+    }
+  },
+  "model": "gemini-3.8-flash",
+  "vendor_connections": {
+    "Epic": false,
+    "ServiceNow": false,
+    "UKG": false
+  },
+  "limitations": [
+    "Synthetic public data only; no hospital/Epic/ServiceNow/UKG connection",
+    "Local simulated review, no UiPath in this repository and no real patient message",
+    "FHIR projections and bounded snapshot, not an entire EHR",
+    "Content agreement and dollar-amount checks do not prove every model statement correct"
+  ],
+  "browser_checks": {
+    "desktop_1440": true,
+    "mobile_390": true,
+    "no_horizontal_overflow": true,
+    "english_ui": true,
+    "page_errors": [],
+    "fixture_reimport_via_ui": true,
+    "approval_persisted_after_reload": true
+  },
+  "automated_tests": {
+    "passed": 14,
+    "skipped": 0,
+    "command": "RUN_DB_TESTS=1 uv run pytest -q"
+  },
+  "container_digests": {
+    "sqlserver": "mcr.microsoft.com/mssql/server@sha256:4525e3efac9f3e241cb003bb2ff2a82818b502f37e12049d788b1a9fa7e13b7f",
+    "oracle": "container-registry.oracle.com/database/free@sha256:cf540c3fa190d7cffad08c491652ac07fc70314e510f6b87890449517d565e94"
+  }
+}

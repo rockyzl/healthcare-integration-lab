@@ -1,0 +1,14 @@
+{
+  "source_url": "https://raw.githubusercontent.com/synthetichealth/synthea/7187764193c0204e98080fc2338d3ef373f06410/src/test/resources/flexporter/sample_complete_patient.json",
+  "source_commit": "7187764193c0204e98080fc2338d3ef373f06410",
+  "source_sha256": "25c3511f432efe34d2550cf2f58b8909ba486c927c4aff1979fa124e0253aebd",
+  "local_sha256": "c6f14644d07f631cdc63c98d78a844b62575c305be21a0ef3937fdea576197bc",
+  "generator": "Synthea",
+  "license": "Apache-2.0",
+  "transform": "Selected one patient, three encounters and three EOBs; removed names, identifiers, addresses and clinical narrative. Amounts are unchanged.",
+  "resource_counts": {
+    "Patient": 1,
+    "Encounter": 3,
+    "ExplanationOfBenefit": 3
+  }
+}

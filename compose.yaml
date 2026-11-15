@@ -1,0 +1,25 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: healthcare-lab-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set a local password in .env}
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+    ports: ["127.0.0.1:14339:1433"]
+    volumes: ["sqlserver-data:/var/opt/mssql"]
+    mem_limit: 3g
+    cpus: 2
+  oracle:
+    image: container-registry.oracle.com/database/free:latest-lite
+    container_name: healthcare-lab-oracle
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD:?Set a local password in .env}
+    ports: ["127.0.0.1:15219:1521"]
+    volumes: ["oracle-data:/opt/oracle/oradata"]
+    mem_limit: 3g
+    cpus: 2
+volumes:
+  sqlserver-data:
+  oracle-data:
